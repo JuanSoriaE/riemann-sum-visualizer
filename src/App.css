@@ -1,0 +1,83 @@
+main {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+/* SIDEBAR MENU */
+
+#side-bar-menu {
+  background-color: #fff;
+  border-right: 2px solid #ddd;
+  width: 5%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1;
+}
+
+.icon {
+  height: 40px;
+  width: 40px;
+  margin-top: 10px;
+}
+
+/* SIDEBAR */
+
+#side-bar {
+  background-color: #fff;
+  width: 30%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  border-radius: 0 10px 10px 0;
+  box-shadow: 5px 0px 20px rgba(0, 0, 0, 0.1);
+}
+
+#params-form {
+  margin-top: 50px;
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.range-inp-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.range-inp-container > input[type="range"] {
+  width: 80%;
+}
+
+.range-txt-inp {
+  width: 50px;
+  text-align: right;
+}
+
+.radio-container {
+  display: flex;
+  align-items: center;
+}
+
+.radio-container > label {
+  cursor: pointer;
+  color: #555;
+}
+
+/* CANVA */
+
+#cnv-container {
+  width: 65%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#cnv {
+  border: 1px solid black;
+  /* width: 100%; */
+}
