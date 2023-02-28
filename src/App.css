@@ -70,11 +70,14 @@ main {
 /* CANVA */
 
 #cnv-container {
+  position: relative;
   width: 65%;
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-grow: 1;
+  transition: all 1s;
 }
 
 #cnv {
