@@ -75,7 +75,7 @@ function App() {
     ctx.beginPath();
     ctx.moveTo(LEFT_BOUND, F(LEFT_BOUND - CENTER_X), 2, 2);
     for (let i = LEFT_BOUND - CENTER_X; i <= RIGHT_BOUND - CENTER_X; i++) {
-      let y = F(i);
+      const y = F(i);
       ctx.lineTo(i + CENTER_X, y + CENTER_Y);
     }
     ctx.stroke();
@@ -86,18 +86,21 @@ function App() {
 
     // RIEMANN RECTANGLES
     ctx.fillStyle = COLORS["light-blue"];
-    let delta_x = (right_bound - left_bound) / N;
-    let start = sum_type == "right" ? 1 : 0, sum = 0
-    let mid = sum_type == "mid" ? 0.5 : 0;
+    const delta_x = (right_bound - left_bound) / N;
+    let start, sum = 0;
+
+    if (sum_type == "left") start = 0;
+    else if (sum_type == "right") start = 1;
+    else start = 0.5;
 
     for (let i = start; i < N + start; i++) {
-      let x = left_bound + (i + mid) * delta_x;
-      let height = F(x);
+      const x = left_bound + i * delta_x;
+      const height = F(x);
       sum += height * delta_x;
       
-      ctx.fillRect(x + CENTER_X - (start + mid) * delta_x, CENTER_Y, delta_x, height);
+      ctx.fillRect(x + CENTER_X - start * delta_x, CENTER_Y, delta_x, height);
       ctx.strokeStyle = COLORS["dark-blue"];
-      ctx.strokeRect(x + CENTER_X - (start + mid) * delta_x, CENTER_Y, delta_x, height);
+      ctx.strokeRect(x + CENTER_X - start * delta_x, CENTER_Y, delta_x, height);
     }
     setArea(sum % 1 == 0 ? sum : sum.toFixed(3));
   }
@@ -114,7 +117,7 @@ function App() {
     setLeftBound(Number(new_lft_bound));
     setRightBound(Number(new_rgt_bound));
     setN(Number(new_N));
-    setSumType(new_sum_type ? new_sum_type.value : sum_type);
+    setSumType(new_sum_type.value);
   }
 
   return <main>
@@ -177,7 +180,7 @@ function App() {
               value="left"
               onChange={setValues}
               checked={sum_type == "left"} />
-            <label className="form-field-lbl" htmlFor="left-sum-radio">Left sum</label>
+            <label className="form-field-lbl" htmlFor="left-sum-radio">Left Sum</label>
           </div>
           <div className="radio-container">
             <input
@@ -187,7 +190,7 @@ function App() {
               value="right"
               onChange={setValues}
               checked={sum_type == "right"} />
-            <label className="form-field-lbl" htmlFor="right-sum-radio">Right sum</label>
+            <label className="form-field-lbl" htmlFor="right-sum-radio">Right Sum</label>
           </div>
           <div className="radio-container">
             <input
@@ -197,7 +200,7 @@ function App() {
               value="mid"
               onChange={setValues}
               checked={sum_type == "mid"} />
-            <label className="form-field-lbl" htmlFor="mid-sum-radio">Mid sum</label>
+            <label className="form-field-lbl" htmlFor="mid-sum-radio">Mid Sum</label>
           </div>
         </div>
         <div className="form-field">
