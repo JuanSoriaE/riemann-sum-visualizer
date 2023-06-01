@@ -5,8 +5,23 @@ import { IoIosMenu } from "react-icons/io";
 import { motion } from "framer-motion";
 import FormField from "./components/FormField";
 import InfoModal from "./components/InfoModal";
+import ControlsModal from "./components/ControlsModal";
 
 function App() {
+  // CONSTANTS
+  const CNV_WIDTH = 500;
+  const CNV_HEIGHT = 500;
+  const LEFT_BOUND = 0, RIGHT_BOUND = CNV_WIDTH;
+  const N_LIMIT = 100;
+  const COLORS = {
+    "light-blue": "rgba(31, 52, 161, 0.2)",
+    "blue": "rgba(0, 110, 255, 0.3)",
+    "dark-blue": "rgba(31, 52, 161, 0.6)",
+    "black": "#222",
+    "grey": "#666",
+    "light-grey": "#aaa"
+  };
+
   const cnv = useRef(null);
   const eq_input = useRef(null);
   const left_bound_input = useRef(null);
@@ -16,26 +31,17 @@ function App() {
   const form_btn = useRef(null);
   const cnv_container = useRef(null);
 
-  const [eq, setEq] = useState("60 * Math.pow(x / 60, 2)");
+  const [eq, setEq] = useState("Math.sin(x)");
   const [left_bound, setLeftBound] = useState(0);
-  const [right_bound, setRightBound] = useState(100);
+  const [right_bound, setRightBound] = useState(3.1416);
   const [N, setN] = useState(10);
   const [sum_type, setSumType] = useState("left");
   const [area, setArea] = useState(0);
-
-  // CONSTANT VARIABLES
-  const CNV_WIDTH = 500;
-  const CNV_HEIGHT = 500;
-  const CENTER_X = CNV_WIDTH / 2;
-  const CENTER_Y = CNV_HEIGHT / 2;
-  const LEFT_BOUND = 0, RIGHT_BOUND = CNV_WIDTH;
-  const N_LIMIT = 100;
-  const COLORS = {
-    "light-blue": "rgba(31, 52, 161, 0.2)",
-    "blue": "rgba(0, 110, 255, 0.3)",
-    "dark-blue": "rgba(31, 52, 161, 0.6)",
-    "black": "#222"
-  };
+  const [zoom, setZoom] = useState(50);
+  const [center_x, setCenterX] = useState(CNV_WIDTH / 2);
+  const [center_y, setCenterY] = useState(CNV_HEIGHT / 2);
+  const [mouseDownPos, setMouseDownPos] = useState([]);
+  const [dragOn, setDragOn] = useState(false);
 
   // UX
   const sidebar_variants = {
@@ -51,7 +57,24 @@ function App() {
 
   useEffect(() => {
     main();
-  }, [left_bound, right_bound, N, eq, sum_type]);
+  }, [left_bound, right_bound, N, eq, sum_type, zoom, center_x, center_y]);
+
+  function handleMouseDown(e) {
+    setMouseDownPos([e.clientX, e.clientY]);
+    setDragOn(true);
+  }
+
+  function handleMouseMove(e) {
+    if (!dragOn) return;
+
+    setMouseDownPos([e.clientX, e.clientY]);
+    setCenterX(center_x + (e.clientX - mouseDownPos[0]));
+    setCenterY(center_y + (mouseDownPos[1] - e.clientY));
+  }
+
+  function handleMouseUp(e) {
+    setDragOn(false);
+  }
 
   // Custom Mathematic Function
   const F = new Function("x", `return ${eq}`);
@@ -63,26 +86,79 @@ function App() {
     // X and Y axis
     ctx.strokeStyle = COLORS["black"];
     ctx.beginPath();
-    ctx.moveTo(0, CENTER_Y);
-    ctx.lineTo(CNV_WIDTH, CENTER_Y);
+    ctx.moveTo(0, center_y);
+    ctx.lineTo(CNV_WIDTH, center_y);
     ctx.stroke();
     ctx.beginPath();
-    ctx.moveTo(CENTER_X, 0);
-    ctx.lineTo(CENTER_X, CNV_HEIGHT);
+    ctx.moveTo(center_x, 0);
+    ctx.lineTo(center_x, CNV_HEIGHT);
     ctx.stroke();
+    
+    // AXIS LABELS AND GRID
+    ctx.transform(1, 0, 0, -1, 0, CNV_HEIGHT);
+    ctx.beginPath();
+    ctx.strokeStyle = COLORS["grey"];
+    ctx.fillStyle = COLORS["grey"];
+    ctx.lineWidth = 1;
+    ctx.font = "15px Arial";
+
+    const step = CNV_WIDTH / (10 * zoom);
+    const x_px_gap = CNV_WIDTH / 10;
+    const x_offset = center_x % x_px_gap;
+    const x_first_val = (x_offset - center_x) / zoom;
+    let i = 0;
+
+    for (let x = 0; x <= CNV_WIDTH; x += x_px_gap) {
+      ctx.strokeStyle = COLORS["light-grey"];
+      ctx.moveTo(x + x_offset, 0);
+      ctx.lineTo(x + x_offset, CNV_HEIGHT);
+
+      const val = (x_first_val + step * i) % 1 == 0 ? x_first_val + step * i : (x_first_val + step * i).toFixed(1);
+      let y_coor = CNV_HEIGHT - center_y + 20;
+      y_coor = Math.max(y_coor, 15);
+      y_coor = Math.min(y_coor, 495);
+      ctx.fillText(val, x + x_offset - 4, y_coor);
+      i++;
+    }
+
+    const y_px_gap = CNV_HEIGHT / 10;
+    const y_offset = center_y % y_px_gap;
+    const y_first_val = (y_offset - center_y) / zoom;
+    let j = 10;
+
+    for (let y = 0; y <= CNV_HEIGHT; y += y_px_gap) {
+      ctx.moveTo(0, y - y_offset);
+      ctx.lineTo(CNV_WIDTH, y - y_offset);
+
+      let val = (y_first_val + step * j) % 1 == 0 ? y_first_val + step * j : (y_first_val + step * j).toFixed(1);
+      if (val == 0) {
+        j--;
+        continue;
+      }
+      let x_coor = center_x + 4;
+      x_coor = Math.max(x_coor, 5);
+      x_coor = Math.min(x_coor, 485);
+      ctx.fillText(val, x_coor , y - y_offset + 6);
+      j--;
+    }
+
+    ctx.stroke();
+    ctx.transform(1, 0, 0, -1, 0, CNV_HEIGHT);
 
     // FUNCTION GRAPHIC
+    ctx.strokeStyle = COLORS["black"];
+
     ctx.beginPath();
-    ctx.moveTo(LEFT_BOUND, F(LEFT_BOUND - CENTER_X), 2, 2);
-    for (let i = LEFT_BOUND - CENTER_X; i <= RIGHT_BOUND - CENTER_X; i++) {
-      const y = F(i);
-      ctx.lineTo(i + CENTER_X, y + CENTER_Y);
+    ctx.moveTo(LEFT_BOUND, F(LEFT_BOUND - center_x), 2, 2);
+    for (let i = LEFT_BOUND - center_x; i <= RIGHT_BOUND - center_x; i++) {
+      const y = zoom * F(i / zoom);
+      ctx.lineTo(i + center_x, y + center_y);
     }
     ctx.stroke();
 
     // INTERVAL DRAW
     ctx.fillStyle = COLORS["blue"];
-    ctx.fillRect(left_bound + CENTER_X, 0, right_bound - left_bound, CNV_HEIGHT);
+    ctx.fillRect(left_bound * zoom + center_x, 0, (right_bound - left_bound) * zoom, CNV_HEIGHT);
 
     // RIEMANN RECTANGLES
     ctx.fillStyle = COLORS["light-blue"];
@@ -98,10 +174,11 @@ function App() {
       const height = F(x);
       sum += height * delta_x;
       
-      ctx.fillRect(x + CENTER_X - start * delta_x, CENTER_Y, delta_x, height);
+      ctx.fillRect(x * zoom + center_x - start * delta_x * zoom, center_y, delta_x * zoom, height * zoom);
       ctx.strokeStyle = COLORS["dark-blue"];
-      ctx.strokeRect(x + CENTER_X - start * delta_x, CENTER_Y, delta_x, height);
+      ctx.strokeRect(x * zoom + center_x - start * delta_x * zoom, center_y, delta_x * zoom, height * zoom);
     }
+
     setArea(sum % 1 == 0 ? sum : sum.toFixed(3));
   }
 
@@ -223,7 +300,13 @@ function App() {
         id="cnv"
         width={CNV_WIDTH}
         height={CNV_HEIGHT}
-        ref={cnv}></canvas>
+        ref={cnv}
+        onMouseDown={ handleMouseDown }
+        onMouseMove={ handleMouseMove }
+        onMouseUp={ handleMouseUp }></canvas>
+      <ControlsModal 
+        zoom={zoom}
+        setZoom={setZoom}/>
     </div>
   </main>
 }

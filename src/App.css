@@ -82,5 +82,9 @@ main {
 
 #cnv {
   border: 1px solid black;
-  /* width: 100%; */
+  cursor: grab;
+}
+
+#cnv:active {
+  cursor: grabbing;
 }
