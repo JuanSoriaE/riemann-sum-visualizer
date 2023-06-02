@@ -1,9 +1,11 @@
 import './InfoModal.css';
 import { IoIosClose } from 'react-icons/io';
 
-function InfoModal({ eq, area, interval, N }) {
+function InfoModal({ eq, area, interval, N, setShownfoModal }) {
   return <div id='info-modal'>
-    <IoIosClose className='small-icon close-info-icon mouse-ptr' />
+    <IoIosClose
+      className='small-icon close-info-icon mouse-ptr'
+      onClick={() => setShownfoModal(false)} />
     <div className="aprox-area-container">
       <span
         className='form-field-lbl'

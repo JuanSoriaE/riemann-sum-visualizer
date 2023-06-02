@@ -1,7 +1,7 @@
 import "./App.css";
 import { useEffect, useRef, useState } from "react";
-import { IoCloseOutline } from "react-icons/io5";
-import { IoIosMenu } from "react-icons/io";
+import { IoCloseOutline, IoInformation } from "react-icons/io5";
+import { IoIosMenu, IoMdInformation } from "react-icons/io";
 import { motion } from "framer-motion";
 import FormField from "./components/FormField";
 import InfoModal from "./components/InfoModal";
@@ -9,14 +9,11 @@ import ControlsModal from "./components/ControlsModal";
 
 function App() {
   // CONSTANTS
-  const CNV_WIDTH = 500;
-  const CNV_HEIGHT = 500;
-  const LEFT_BOUND = 0, RIGHT_BOUND = CNV_WIDTH;
   const N_LIMIT = 100;
   const COLORS = {
-    "light-blue": "rgba(31, 52, 161, 0.2)",
-    "blue": "rgba(0, 110, 255, 0.3)",
-    "dark-blue": "rgba(31, 52, 161, 0.6)",
+    "rect": "rgba(31, 52, 161, 0.2)",
+    "interval": "rgba(58, 171, 32, 0.2)",
+    "rect-border": "rgba(31, 52, 161, 0.6)",
     "black": "#222",
     "grey": "#666",
     "light-grey": "#aaa"
@@ -37,31 +34,26 @@ function App() {
   const [N, setN] = useState(10);
   const [sum_type, setSumType] = useState("left");
   const [area, setArea] = useState(0);
-  const [zoom, setZoom] = useState(50);
-  const [center_x, setCenterX] = useState(CNV_WIDTH / 2);
-  const [center_y, setCenterY] = useState(CNV_HEIGHT / 2);
+  const [zoom, setZoom] = useState(100);
+  const [cnv_width, setCnvWidth] = useState(500);
+  const [cnv_height, setCnvHeight] = useState(500);
+  const [center_x, setCenterX] = useState(cnv_width / 2);
+  const [center_y, setCenterY] = useState(cnv_height / 2);
   const [mouseDownPos, setMouseDownPos] = useState([]);
   const [dragOn, setDragOn] = useState(false);
 
+  const LEFT_BOUND = 0, RIGHT_BOUND = cnv_width;
   let ctx;
 
   // UX
   const sidebar_variants = {
     open: {opacity: 1, x: 0},
-    closed: {opacity: 0, x: "-100%"}
+    closed: {opacity: 0, x: "-100%", display: "none"}
   };
+
   const [show_sidebar, setShowbar] = useState(true);
+  const [show_info_modal, setShowInfoModal] = useState(true);
   
-  useEffect(() => {
-    const cnv_ctx = cnv.current.getContext("2d");
-    ctx = cnv_ctx;
-    ctx.transform(1, 0, 0, -1, 0, CNV_HEIGHT);
-  }, []);
-
-  useEffect(() => {
-    main();
-  }, [left_bound, right_bound, N, eq, sum_type, zoom, center_x, center_y]);
-
   function handleMouseDown(e) {
     setMouseDownPos([e.clientX, e.clientY]);
     setDragOn(true);
@@ -69,7 +61,7 @@ function App() {
 
   function handleMouseMove(e) {
     if (!dragOn) return;
-
+    
     setMouseDownPos([e.clientX, e.clientY]);
     setCenterX(center_x + (e.clientX - mouseDownPos[0]));
     setCenterY(center_y + (mouseDownPos[1] - e.clientY));
@@ -79,6 +71,26 @@ function App() {
     setDragOn(false);
   }
 
+  function handleCloseOpenMenu(e) {
+    setShowbar(show_sidebar => !show_sidebar)
+    setCnvWidth(cnv_container.current.offsetWidth);
+    setCnvHeight(cnv_container.current.offsetHeight);
+  }
+  
+  useEffect(() => {
+    setCnvWidth(cnv_container.current.offsetWidth - 5);
+    setCnvHeight(cnv_container.current.offsetHeight - 5);
+    setCenterX(cnv_width / 2);
+    setCenterY(cnv_height / 2);
+
+    ctx = cnv.current.getContext("2d");
+    ctx.transform(1, 0, 0, -1, 0, cnv_height);
+  }, [cnv_width, cnv_height]);
+  
+  useEffect(() => {
+    main();
+  }, [left_bound, right_bound, N, eq, sum_type, zoom, center_x, center_y, cnv_width, cnv_height]);
+  
   // Custom Mathematic Function
   const F = new Function("x", `return ${eq}`);
 
@@ -86,21 +98,18 @@ function App() {
   function renderAxis() {
     ctx.strokeStyle = COLORS["black"];
     ctx.beginPath();
-    ctx.moveTo(0, center_y);
-    ctx.lineTo(CNV_WIDTH, center_y);
-    ctx.stroke();
-    ctx.beginPath();
     ctx.moveTo(center_x, 0);
-    ctx.lineTo(center_x, CNV_HEIGHT);
+    ctx.lineTo(center_x, cnv_height);
+    ctx.moveTo(0, center_y);
+    ctx.lineTo(cnv_width, center_y);
     ctx.stroke();
   }
 
   function renderAxisLabels() {
     // AXIS LABELS AND GRID
-    ctx.transform(1, 0, 0, -1, 0, CNV_HEIGHT);
+    ctx.transform(1, 0, 0, -1, 0, cnv_height);
 
     const char_width = 4;
-    const n_lines = 10;
     const font_size = 15;
     const margin = 4;
     const bound_margin = 15;
@@ -112,57 +121,67 @@ function App() {
     ctx.font = `${font_size}px Arial`;
 
     // X labels
-    const step = CNV_WIDTH / (n_lines * zoom);
-    const x_px_gap = CNV_WIDTH / n_lines;
+    let x_step = 1;
+    let x_n_lines = cnv_width / (x_step * zoom);
+    if (x_n_lines < 8 || x_n_lines > 16) {
+      x_step = cnv_width / (
+        (x_n_lines < 8 ? 8 : 16) * zoom
+      );
+      x_n_lines = cnv_width / (x_step * zoom);
+    }
+
+    const x_px_gap = cnv_width / x_n_lines;
     const x_offset = center_x % x_px_gap;
     const x_first_val = (x_offset - center_x) / zoom;
     let i = 0;
 
-    for (let x = 0; x <= CNV_WIDTH; x += x_px_gap) {
+    for (let x = 0; x <= cnv_width; x += x_px_gap) {
       // Grid line
       ctx.moveTo(x + x_offset, 0);
-      ctx.lineTo(x + x_offset, CNV_HEIGHT);
+      ctx.lineTo(x + x_offset, cnv_height);
 
       // Label
-      const val = (x_first_val + step * i) % 1 == 0
-        ? x_first_val + step * i
-        : (x_first_val + step * i).toFixed(1);
+      const val = (x_first_val + x_step * i) % 1 == 0
+        ? x_first_val + x_step * i
+        : (x_first_val + x_step * i).toFixed(1);
       const chars_width = String(val).length * char_width + (val < 0 ? 1 : 0);
 
-      let y_coor = CNV_HEIGHT - center_y + font_size + margin;
+      let y_coor = cnv_height - center_y + font_size + margin;
       y_coor = Math.max(y_coor, bound_margin);
-      y_coor = Math.min(y_coor, CNV_HEIGHT - margin);
+      y_coor = Math.min(y_coor, cnv_height - margin);
       ctx.fillText(val, x + x_offset - chars_width, y_coor);
       i++;
     }
 
-    const y_px_gap = CNV_HEIGHT / n_lines;
+    const y_step = x_step;
+    const y_n_lines = cnv_height / (y_step * zoom);
+    const y_px_gap = cnv_height / y_n_lines;
     const y_offset = center_y % y_px_gap;
     const y_first_val = (y_offset - center_y) / zoom;
-    let j = 10;
+    const mod = cnv_height % y_px_gap;
+    let j = Math.ceil(y_n_lines);
 
-    for (let y = 0; y <= CNV_HEIGHT; y += y_px_gap) {
+    for (let y = 0; y <= cnv_height + y_px_gap; y += y_px_gap) {
       // Grid line
-      ctx.moveTo(0, y - y_offset);
-      ctx.lineTo(CNV_WIDTH, y - y_offset);
+      ctx.moveTo(0, y - y_offset + mod);
+      ctx.lineTo(cnv_width, y - y_offset + mod);
 
       // Label
-      const val = (y_first_val + step * j) % 1 == 0
-        ? y_first_val + step * j
-        : (y_first_val + step * j).toFixed(1);
+      const val = (y_first_val + y_step * j) % 1 == 0
+        ? y_first_val + y_step * j
+        : (y_first_val + y_step * j).toFixed(1);
       if (val == 0) {j--; continue;}
 
       const chars_width = String(val).length * char_width + 3 - (val < 0 ? 1 : 0);
 
-      let x_coor = center_x;
-      x_coor = Math.max(x_coor, 2 * chars_width + margin);
-      x_coor = Math.min(x_coor, 500);
-      ctx.fillText(val, x_coor - chars_width * 2, y - y_offset + margin);
+      let x_coor = Math.max(center_x, 2 * chars_width + margin);
+      x_coor = Math.min(x_coor, cnv_width);
+      ctx.fillText(val, x_coor - chars_width * 2, y - y_offset + margin - (x_px_gap - mod));
       j--;
     }
 
     ctx.stroke();
-    ctx.transform(1, 0, 0, -1, 0, CNV_HEIGHT);
+    ctx.transform(1, 0, 0, -1, 0, cnv_height);
   }
 
   function renderGraph() {
@@ -170,7 +189,7 @@ function App() {
     ctx.strokeStyle = COLORS["black"];
 
     ctx.beginPath();
-    ctx.moveTo(LEFT_BOUND, F(LEFT_BOUND - center_x), 2, 2);
+    ctx.moveTo(0, zoom * F(-center_x / zoom) + center_y);
     for (let i = LEFT_BOUND - center_x; i <= RIGHT_BOUND - center_x; i++) {
       const y = zoom * F(i / zoom);
       ctx.lineTo(i + center_x, y + center_y);
@@ -180,13 +199,13 @@ function App() {
 
   function renderInterval() {
     // INTERVAL DRAW
-    ctx.fillStyle = COLORS["blue"];
-    ctx.fillRect(left_bound * zoom + center_x, 0, (right_bound - left_bound) * zoom, CNV_HEIGHT);
+    ctx.fillStyle = COLORS["interval"];
+    ctx.fillRect(left_bound * zoom + center_x, 0, (right_bound - left_bound) * zoom, cnv_height);
   }
 
   function renderRectangles() {
     // RIEMANN RECTANGLES
-    ctx.fillStyle = COLORS["light-blue"];
+    ctx.fillStyle = COLORS["rect"];
     const delta_x = (right_bound - left_bound) / N;
     let start, sum = 0;
 
@@ -200,7 +219,7 @@ function App() {
       sum += height * delta_x;
       
       ctx.fillRect(x * zoom + center_x - start * delta_x * zoom, center_y, delta_x * zoom, height * zoom);
-      ctx.strokeStyle = COLORS["dark-blue"];
+      ctx.strokeStyle = COLORS["rect-border"];
       ctx.strokeRect(x * zoom + center_x - start * delta_x * zoom, center_y, delta_x * zoom, height * zoom);
     }
 
@@ -209,10 +228,10 @@ function App() {
 
   function main() {
     ctx = cnv.current.getContext("2d");
-    ctx.clearRect(0, 0, CNV_WIDTH, CNV_HEIGHT);
+    ctx.clearRect(0, 0, cnv_width, cnv_height);
 
-    renderAxis();
     renderAxisLabels();
+    renderAxis();
     renderGraph();
     renderInterval();
     renderRectangles();
@@ -235,13 +254,17 @@ function App() {
 
   return <main>
     <div id="side-bar-menu">
-      <div onClick={() => setShowbar(show_sidebar => !show_sidebar)}>
+      <div onClick={handleCloseOpenMenu}>
         { show_sidebar 
           ? <IoCloseOutline className="icon mouse-ptr" /> 
           : <IoIosMenu className="icon mouse-ptr" /> }
       </div>
     </div>
-    <motion.div id="side-bar" animate={show_sidebar ? "open" : "closed"} transition={{type: "just", duration: 0.25}} variants={sidebar_variants}>
+    <motion.div
+      id="side-bar"
+      animate={show_sidebar ? "open" : "closed"}
+      transition={{type: "just", duration: 0.25}}
+      variants={sidebar_variants}>
       <form onSubmit={setValues} id="params-form">
         <FormField
           label_txt="Equation f(x)"
@@ -327,22 +350,31 @@ function App() {
       </form>
     </motion.div>
     <div id="cnv-container" ref={cnv_container}>
-      <InfoModal
-        eq={eq}
-        area={area}
-        interval={[left_bound, right_bound]}
-        N={N} />
       <canvas
         id="cnv"
-        width={CNV_WIDTH}
-        height={CNV_HEIGHT}
+        width={cnv_width}
+        height={cnv_height}
         ref={cnv}
         onMouseDown={ handleMouseDown }
         onMouseMove={ handleMouseMove }
         onMouseUp={ handleMouseUp }></canvas>
+      {
+      show_info_modal
+      ? <InfoModal
+        eq={eq}
+        area={area}
+        interval={[left_bound, right_bound]}
+        N={N}
+        setShownfoModal={setShowInfoModal} />
+      : <div id="show-info">
+        <IoInformation
+          onClick={() => setShowInfoModal(true)} />
+      </div>
+      }
       <ControlsModal 
         zoom={zoom}
-        setZoom={setZoom}/>
+        setZoom={setZoom}
+        />
     </div>
   </main>
 }
