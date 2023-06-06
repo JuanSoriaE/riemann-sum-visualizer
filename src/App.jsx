@@ -226,6 +226,37 @@ function App() {
     setArea(sum % 1 == 0 ? sum : sum.toFixed(3));
   }
 
+  function renderTrapezoids() {
+    // TRAPEZOIDS RIEMANN SUM
+    ctx.fillStyle = COLORS["rect"];
+    ctx.strokeStyle = COLORS["rect-border"];
+    const delta_x = (right_bound - left_bound) / N;
+    let sum = 0, prev_x, prev_y;
+    prev_x = left_bound;
+    prev_y = F(left_bound);
+
+    for (let i = 1; i < N + 1; i++) {
+      const x = left_bound + i * delta_x;
+      const y = F(x);
+      sum += (y + prev_y) / 2 * delta_x;
+      
+      ctx.beginPath();
+      ctx.moveTo(prev_x * zoom + center_x, prev_y * zoom + center_y);
+
+      ctx.lineTo(x * zoom + center_x, y * zoom + center_y);
+      ctx.lineTo(x * zoom + center_x, center_y);
+      ctx.lineTo(prev_x * zoom + center_x, center_y)
+      ctx.lineTo(prev_x * zoom + center_x, prev_y * zoom + center_y);
+      ctx.fill();
+      ctx.stroke();
+      ctx.closePath();
+
+      prev_x = x; prev_y = y;
+    }
+    
+    setArea(sum % 1 == 0 ? sum : sum.toFixed(3));
+  }
+
   function main() {
     ctx = cnv.current.getContext("2d");
     ctx.clearRect(0, 0, cnv_width, cnv_height);
@@ -234,7 +265,9 @@ function App() {
     renderAxis();
     renderGraph();
     renderInterval();
-    renderRectangles();
+    
+    if (sum_type == "trap") renderTrapezoids();
+    else renderRectangles();
   }
 
   function setValues(e) {
@@ -243,13 +276,15 @@ function App() {
     const new_lft_bound = left_bound_input.current.value || left_bound;
     const new_rgt_bound = right_bound_input.current.value || right_bound;
     const new_N = N_input.current.value;
-    const new_sum_type = document.querySelector("input[name='sum-type']:checked");
 
     setEq(new_eq);
     setLeftBound(Number(new_lft_bound));
     setRightBound(Number(new_rgt_bound));
     setN(Number(new_N));
-    setSumType(new_sum_type.value);
+  }
+
+  function setRadioSumType(e) {
+    setSumType(e.target.value);
   }
 
   return <main>
@@ -314,7 +349,7 @@ function App() {
               id="left-sum-radio"
               name="sum-type"
               value="left"
-              onChange={setValues}
+              onChange={setRadioSumType}
               checked={sum_type == "left"} />
             <label className="form-field-lbl" htmlFor="left-sum-radio">Left Sum</label>
           </div>
@@ -324,7 +359,7 @@ function App() {
               id="right-sum-radio"
               name="sum-type"
               value="right"
-              onChange={setValues}
+              onChange={setRadioSumType}
               checked={sum_type == "right"} />
             <label className="form-field-lbl" htmlFor="right-sum-radio">Right Sum</label>
           </div>
@@ -334,9 +369,19 @@ function App() {
               id="mid-sum-radio"
               name="sum-type"
               value="mid"
-              onChange={setValues}
+              onChange={setRadioSumType}
               checked={sum_type == "mid"} />
             <label className="form-field-lbl" htmlFor="mid-sum-radio">Mid Sum</label>
+          </div>
+          <div className="radio-container">
+            <input
+              type="radio"
+              id="trap-sum-radio"
+              name="sum-type"
+              value="trap"
+              onChange={setRadioSumType}
+              checked={sum_type == "trap"} />
+            <label className="form-field-lbl" htmlFor="trap-sum-radio">Trapezoidal Sum</label>
           </div>
         </div>
         <div className="form-field">
@@ -366,9 +411,9 @@ function App() {
         interval={[left_bound, right_bound]}
         N={N}
         setShownfoModal={setShowInfoModal} />
-      : <div id="show-info">
-        <IoInformation
-          onClick={() => setShowInfoModal(true)} />
+      : <div id="show-info"
+        onClick={() => setShowInfoModal(true)}>
+        <IoInformation />
       </div>
       }
       <ControlsModal 
