@@ -83,7 +83,7 @@ main {
 #cnv {
   position: absolute;
   cursor: move;
-  transition: all 1s;
+  transition: all 0.3s;
 }
 
 #show-info {
