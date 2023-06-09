@@ -1,9 +1,9 @@
 import "./SideBar.css";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import FormField from "./FormField";
 
-function SideBar({ show_sidebar, left_bound, right_bound, N, sum_type, eq, setLeftBound, setRightBound, setN, setSumType, setEq }) {
+function SideBar({ show_sidebar, left_bound, right_bound, N, sum_type, eq, setLeftBound, setRightBound, setN, setSumType, setEq, dark_mode }) {
   // CONSTANTS
   const N_LIMIT = 100;
 
@@ -41,6 +41,7 @@ function SideBar({ show_sidebar, left_bound, right_bound, N, sum_type, eq, setLe
 
   return <motion.div
       id="side-bar"
+      className={ dark_mode ? "dark" : "" }
       animate={ show_sidebar ? "open" : "closed" }
       transition={ {type: "just", duration: 0.25} }
       variants={ sidebar_variants }>
@@ -50,20 +51,23 @@ function SideBar({ show_sidebar, left_bound, right_bound, N, sum_type, eq, setLe
           label_des="(JavaScript Syntax)"
           name="equation"
           placeholder_txt={ eq }
-          reference={ eq_input } />
+          reference={ eq_input }
+          dark_mode={ dark_mode } />
 
         <h2 className="section-name">Range</h2>
         <FormField
           label_txt="Left endpoint"
           name="lft-endpoint"
           placeholder_txt={ left_bound }
-          reference={ left_bound_input } />
+          reference={ left_bound_input }
+          dark_mode={ dark_mode } />
 
         <FormField
           label_txt="Right endpoint"
           name="rgt-endpoint"
           placeholder_txt={ right_bound }
-          reference={ right_bound_input } />
+          reference={ right_bound_input }
+          dark_mode={ dark_mode } />
 
         <h2 className="section-name">Sum Parameters</h2>
         <div className="form-field">
@@ -72,13 +76,14 @@ function SideBar({ show_sidebar, left_bound, right_bound, N, sum_type, eq, setLe
             <input
               type="range"
               id="N-input"
+              className={ dark_mode ? " dark" : "" }
               min="2"
               max={ N_LIMIT }
               ref={ N_input }
               onChange={ setValues }
               value={ N } />
             <input
-              className="txt-inp range-txt-inp"
+              className={ "txt-inp range-txt-inp" + (dark_mode ? " dark" : "")}
               type="text"
               placeholder={ N }
               ref={ N_txt_input }
@@ -95,7 +100,7 @@ function SideBar({ show_sidebar, left_bound, right_bound, N, sum_type, eq, setLe
               value="left"
               onChange={ setRadioSumType }
               checked={ sum_type == "left" } />
-            <label className="form-field-lbl" htmlFor="left-sum-radio">Left Sum</label>
+            <label className={ "form-field-lbl" + (dark_mode ? " dark" : "") } htmlFor="left-sum-radio">Left Sum</label>
           </div>
           <div className="radio-container">
             <input
@@ -105,7 +110,7 @@ function SideBar({ show_sidebar, left_bound, right_bound, N, sum_type, eq, setLe
               value="right"
               onChange={ setRadioSumType }
               checked={ sum_type == "right" } />
-            <label className="form-field-lbl" htmlFor="right-sum-radio">Right Sum</label>
+            <label className={ "form-field-lbl" + (dark_mode ? " dark" : "") } htmlFor="right-sum-radio">Right Sum</label>
           </div>
           <div className="radio-container">
             <input
@@ -115,7 +120,7 @@ function SideBar({ show_sidebar, left_bound, right_bound, N, sum_type, eq, setLe
               value="mid"
               onChange={ setRadioSumType }
               checked={ sum_type == "mid" } />
-            <label className="form-field-lbl" htmlFor="mid-sum-radio">Mid Sum</label>
+            <label className={ "form-field-lbl" + (dark_mode ? " dark" : "") } htmlFor="mid-sum-radio">Mid Sum</label>
           </div>
           <div className="radio-container">
             <input
@@ -125,7 +130,7 @@ function SideBar({ show_sidebar, left_bound, right_bound, N, sum_type, eq, setLe
               value="trap"
               onChange={ setRadioSumType }
               checked={ sum_type == "trap" } />
-            <label className="form-field-lbl" htmlFor="trap-sum-radio">Trapezoidal Sum</label>
+            <label className={ "form-field-lbl" + (dark_mode ? " dark" : "") } htmlFor="trap-sum-radio">Trapezoidal Sum</label>
           </div>
         </div>
         <div className="form-field">

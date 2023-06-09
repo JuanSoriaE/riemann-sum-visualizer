@@ -6,7 +6,7 @@ main {
 /* SIDEBAR MENU */
 
 #side-bar-menu {
-  background-color: #fff;
+  background-color: var(--main-bg-color-light);
   border-right: 2px solid #ddd;
   width: 5%;
   height: 100vh;
@@ -22,51 +22,6 @@ main {
   margin-top: 10px;
 }
 
-/* SIDEBAR */
-
-#side-bar {
-  background-color: #fff;
-  width: 30%;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  border-radius: 0 10px 10px 0;
-  box-shadow: 5px 0px 20px rgba(0, 0, 0, 0.1);
-}
-
-#params-form {
-  margin-top: 50px;
-  width: 80%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.range-inp-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.range-inp-container > input[type="range"] {
-  width: 80%;
-}
-
-.range-txt-inp {
-  width: 50px;
-  text-align: right;
-}
-
-.radio-container {
-  display: flex;
-  align-items: center;
-}
-
-.radio-container > label {
-  cursor: pointer;
-  color: #555;
-}
-
 /* CANVA */
 
 #cnv-container {
@@ -80,12 +35,6 @@ main {
   overflow: hidden;
 }
 
-#cnv {
-  position: absolute;
-  cursor: move;
-  transition: all 0.3s;
-}
-
 #show-info {
   position: absolute;
   top: 20px;
@@ -93,7 +42,7 @@ main {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #fff;
+  background-color: var(--main-bg-color-light);
   width: 40px;
   height: 40px;
   cursor: pointer;
@@ -104,4 +53,24 @@ main {
 #show-info-icon {
   width: 100%;
   height: 100%;
+}
+
+/* DARK MODE */
+
+main.dark {
+  background-color: #111;
+}
+
+#side-bar-menu.dark {
+  background-color: var(--main-bg-color-dark);
+  border-right: 2px solid #333;
+}
+
+#side-bar-menu.dark .icon {
+  color: #666;
+}
+
+#show-info.dark {
+  background-color: var(--main-bg-color-dark);
+  color: #888;
 }

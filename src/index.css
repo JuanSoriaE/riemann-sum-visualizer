@@ -16,6 +16,12 @@ body {
   font-size: 0.9rem;
 }
 
+:root {
+  --main-color: #3F7AD8;
+  --main-bg-color-light: #fff;
+  --main-bg-color-dark: #171717;
+}
+
 .mouse-ptr {
   cursor: pointer;
 }
@@ -61,7 +67,7 @@ input[type="range"]::-webkit-slider-thumb {
   width: 15px;
   height: 15px;
   border-radius: 8px;
-  background-color: #3F7AD8;
+  background-color: var(--main-color);
   cursor: pointer;
 }
 
@@ -86,8 +92,24 @@ input[type="range"]::-webkit-slider-thumb:active {
   margin-top: 20px;
   font-weight: 500;
   color: #fff;
-  background-color: #3F7AD8;
+  background-color: var(--main-color);
   border-radius: 5px;
   border: none;
   cursor: pointer;
+}
+
+/* DARK MODE */
+
+.txt-inp.dark {
+  color: #ddd;
+  background-color: #111;
+  border: 1px solid #333;
+}
+
+.txt-inp.dark::placeholder {
+  color: #999;
+}
+
+input[type="range"].dark {
+  background-color: #333;
 }

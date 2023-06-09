@@ -2,7 +2,7 @@
   position: absolute;
   left: 20px;
   top: 20px;
-  background-color: #fff;
+  background-color: var(--main-bg-color-light);
   padding: 15px;
   width: 230px;
   border-radius: 5px;
@@ -35,4 +35,15 @@
   position: absolute;
   right: 5px;
   top: 5px;
+}
+
+/* DARK MODE */
+
+#info-modal.dark {
+  background-color: var(--main-bg-color-dark);
+  color: #fff;
+}
+
+.info-span.dark {
+  color: #ccc;
 }

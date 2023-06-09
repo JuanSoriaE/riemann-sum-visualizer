@@ -8,7 +8,7 @@
 }
 
 .controls-button {
-  background-color: #fff;
+  background-color: var(--main-bg-color-light);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -24,4 +24,11 @@
 .controls-icon {
   width: 100%;
   height: 100%;
+}
+
+/* DARK MODE */
+
+.controls-button.dark {
+  background-color: var(--main-bg-color-dark);
+  color: #ccc;
 }

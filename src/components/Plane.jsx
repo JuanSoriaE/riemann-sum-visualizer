@@ -1,15 +1,22 @@
 import "./Plane.css";
 import { useState, useEffect, useRef } from "react";
 
-function Plane({ eq, left_bound, right_bound, N, sum_type, cnv_width, cnv_height, zoom, cnv_container, setCnvWidth, setCnvHeight, setArea }) {
+function Plane({ eq, left_bound, right_bound, N, sum_type, cnv_width, cnv_height, zoom, cnv_container, setCnvWidth, setCnvHeight, setArea, dark_mode }) {
   // CONSTANTS
-  const COLORS = {
+  const COLORS = !dark_mode ? {
     "rect": "rgba(31, 52, 161, 0.2)",
     "interval": "rgba(58, 171, 32, 0.2)",
     "rect-border": "rgba(31, 52, 161, 0.6)",
     "black": "#222",
     "grey": "#666",
     "light-grey": "#aaa"
+  } : {
+    "rect": "rgba(31, 52, 161, 0.4)",
+    "interval": "rgba(58, 171, 32, 0.15)",
+    "rect-border": "rgba(31, 52, 161, 1)",
+    "black": "#ccc",
+    "grey": "#999",
+    "light-grey": "#777"
   };
 
   // HTML ELEMENTS REFERENCES
@@ -233,7 +240,7 @@ function Plane({ eq, left_bound, right_bound, N, sum_type, cnv_width, cnv_height
 
   useEffect(() => {
     main();
-  }, [left_bound, right_bound, N, eq, sum_type, zoom, center_x, center_y, cnv_width, cnv_height]);
+  }, [left_bound, right_bound, N, eq, sum_type, zoom, center_x, center_y, cnv_width, cnv_height, dark_mode]);
 
   return <canvas
     id="cnv"

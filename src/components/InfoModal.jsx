@@ -1,8 +1,8 @@
 import "./InfoModal.css";
 import { IoIosClose } from "react-icons/io";
 
-function InfoModal({ eq, area, interval, N, setShownfoModal }) {
-  return <div id="info-modal">
+function InfoModal({ eq, area, interval, N, setShownfoModal, dark_mode }) {
+  return <div id="info-modal" className={ dark_mode ? " dark" : "" }>
     <IoIosClose
       className="small-icon close-info-icon mouse-ptr"
       onClick={ () => setShownfoModal(false) } />
@@ -11,12 +11,12 @@ function InfoModal({ eq, area, interval, N, setShownfoModal }) {
         className="form-field-lbl"
         style={ {marginLeft: 0} }>Approximate Area:</span>
       <span
-        className="info-span">{ area }</span>
+        className={ "info-span" + (dark_mode ? " dark" : "") }>{ area }</span>
     </div>
     <div className="sum-info-container">
-      <span className="info-span">{ eq }</span>
-      <span className="info-span">{ `[${interval[0]}, ${interval[1]}]` }</span>
-      <span className="info-span">{ `N = ${N}` }</span>
+      <span className={ "info-span" + (dark_mode ? " dark" : "") }>{ eq }</span>
+      <span className={ "info-span" + (dark_mode ? " dark" : "") }>{ `[${interval[0]}, ${interval[1]}]` }</span>
+      <span className={ "info-span" + (dark_mode ? " dark" : "") }>{ `N = ${N}` }</span>
     </div>
   </div>
 }

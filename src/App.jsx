@@ -21,6 +21,7 @@ function App() {
   const [cnv_height, setCnvHeight] = useState(500);
   const [area, setArea] = useState(0);
   const [zoom, setZoom] = useState(100);
+  const [dark_mode, setDarkMode] = useState(false);
 
   // UX STATES
   const [show_sidebar, setShowSidebar] = useState(true);
@@ -33,8 +34,8 @@ function App() {
     setCnvHeight(cnv_container.current.offsetHeight);
   }
 
-  return <main>
-    <div id="side-bar-menu">
+  return <main className={ dark_mode ? " dark" : "" }>
+    <div id="side-bar-menu" className={ dark_mode ? " dark" : "" }>
       <div onClick={ handleCloseOpenMenu }>
         { show_sidebar 
           ? <IoCloseOutline className="icon mouse-ptr" /> 
@@ -52,7 +53,8 @@ function App() {
       sum_type={ sum_type }
       setSumType={ setSumType }
       eq={ eq }
-      setEq={ setEq } />
+      setEq={ setEq }
+      dark_mode={ dark_mode } />
     <div id="cnv-container" ref={ cnv_container }>
       <Plane
         eq={ eq }
@@ -66,7 +68,8 @@ function App() {
         cnv_container={ cnv_container }
         setCnvWidth={ setCnvWidth }
         setCnvHeight={ setCnvHeight }
-        setArea={ setArea } />
+        setArea={ setArea }
+        dark_mode={ dark_mode } />
       {
       show_info_modal
       ? <InfoModal
@@ -74,8 +77,10 @@ function App() {
         area={ area }
         interval={ [left_bound, right_bound] }
         N={ N }
-        setShownfoModal={ setShowInfoModal } />
+        setShownfoModal={ setShowInfoModal }
+        dark_mode={ dark_mode } />
       : <div id="show-info"
+        className={ dark_mode ? " dark" : "" }
         onClick={ () => setShowInfoModal(true) }>
         <IoInformation />
       </div>
@@ -83,6 +88,8 @@ function App() {
       <ControlsModal 
         zoom={ zoom }
         setZoom={ setZoom }
+        dark_mode={ dark_mode }
+        setDarkMode={ setDarkMode }
         />
     </div>
   </main>
