@@ -48,7 +48,6 @@ function SideBar({ show_sidebar, left_bound, right_bound, N, sum_type, eq, setLe
       <form onSubmit={ setValues } id="params-form">
         <FormField
           label_txt="Equation f(x)"
-          label_des="(JavaScript Syntax)"
           name="equation"
           placeholder_txt={ eq }
           reference={ eq_input }

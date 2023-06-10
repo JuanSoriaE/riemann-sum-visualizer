@@ -1,5 +1,6 @@
 import "./Plane.css";
 import { useState, useEffect, useRef } from "react";
+import { Parser } from "expr-eval";
 
 function Plane({ eq, left_bound, right_bound, N, sum_type, cnv_width, cnv_height, zoom, cnv_container, setCnvWidth, setCnvHeight, setArea, dark_mode }) {
   // CONSTANTS
@@ -49,7 +50,7 @@ function Plane({ eq, left_bound, right_bound, N, sum_type, cnv_width, cnv_height
   }
 
   // CUSTOM MATHEMATICAL FUNCTION
-  const F = new Function("x", `return ${eq}`);
+  const F = Parser.parse(eq);
 
   // PLANE RENDERING
   function renderAxis() {
@@ -146,9 +147,9 @@ function Plane({ eq, left_bound, right_bound, N, sum_type, cnv_width, cnv_height
     ctx.strokeStyle = COLORS["black"];
 
     ctx.beginPath();
-    ctx.moveTo(0, zoom * F(-center_x / zoom) + center_y);
+    ctx.moveTo(0, zoom * F.evaluate({x:  -center_x / zoom}) + center_y);
     for (let i = - center_x; i <= cnv_width - center_x; i++) {
-      const y = zoom * F(i / zoom);
+      const y = zoom * F.evaluate({x: i / zoom});
       ctx.lineTo(i + center_x, y + center_y);
     }
     ctx.stroke();
@@ -172,7 +173,7 @@ function Plane({ eq, left_bound, right_bound, N, sum_type, cnv_width, cnv_height
 
     for (let i = start; i < N + start; i++) {
       const x = left_bound + i * delta_x;
-      const height = F(x);
+      const height = F.evaluate({x: x});
       sum += height * delta_x;
       
       ctx.fillRect(x * zoom + center_x - start * delta_x * zoom, center_y, delta_x * zoom, height * zoom);
@@ -190,11 +191,11 @@ function Plane({ eq, left_bound, right_bound, N, sum_type, cnv_width, cnv_height
     const delta_x = (right_bound - left_bound) / N;
     let sum = 0, prev_x, prev_y;
     prev_x = left_bound;
-    prev_y = F(left_bound);
+    prev_y = F.evaluate({x: prev_x});
 
     for (let i = 1; i < N + 1; i++) {
       const x = left_bound + i * delta_x;
-      const y = F(x);
+      const y = F.evaluate({x: x});
       sum += (y + prev_y) / 2 * delta_x;
       
       ctx.beginPath();

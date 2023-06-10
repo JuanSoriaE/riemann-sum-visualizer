@@ -12,7 +12,7 @@ function App() {
   const cnv_container = useRef(null);
 
   // STATES
-  const [eq, setEq] = useState("Math.sin(x)");
+  const [eq, setEq] = useState("sin(x)");
   const [left_bound, setLeftBound] = useState(0);
   const [right_bound, setRightBound] = useState(3.1416);
   const [N, setN] = useState(10);

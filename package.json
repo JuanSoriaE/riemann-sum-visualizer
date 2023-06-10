@@ -9,6 +9,7 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "expr-eval": "^2.0.2",
     "framer-motion": "^9.0.4",
     "gh-pages": "^5.0.0",
     "react": "^18.0.0",
